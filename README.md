@@ -93,7 +93,7 @@ You can normally find it in your *deploy.rb*. An example from a stock config:
 This is just a sample.
 You will need to modify it based on your Capistrano configuration.
 Watch the commands that are executed when you run ````cap production deploy```` to see what commands are executed.
-Also make sure you run it as ````:deploy_user```` user as specified in your *deploy.rb*.
+Also make sure you run it as ````:deploy_user```` as specified in your *deploy.rb*.
 
     #!/bin/bash
 
