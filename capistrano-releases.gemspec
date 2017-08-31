@@ -11,7 +11,7 @@ Gem::Specification.new do |spec|
   spec.email         = ['chad@remesch.com']
 
   spec.summary       = 'Release manager for auto scaling environments.'
-  spec.description   = 'Auto scaling environments need a way to share and synchronize the capistrano releases directory. This gem provides that capability using AWS S3.'
+  spec.description   = 'Auto scaling environments need a way to share the releases directory. This gem provides that capability using AWS S3.'
   spec.homepage      = 'https://github.com/chadrem/capistrano-releases'
   spec.license       = 'MIT'
 
