@@ -4,11 +4,11 @@ This gem simplifies working with [Auto scaling for AWS EC2](https://aws.amazon.c
 
 ## Requirements
 
-* Ruby 2.X or greater.
-* aws-sdk gem.
-* An AWS S3 bucket to store releases.
-* Read and write API permissions to the S3 bucket.
-* Capistrano installed and configured properly with deploys already working.
+* Ruby 2.X or greater
+* [aws-sdk](https://github.com/aws/aws-sdk-ruby)
+* An AWS S3 bucket to store releases
+* Read and write API permissions to the S3 bucket
+* Capistrano installed and configured properly with deploys already working
 
 ## Installation
 
