@@ -95,6 +95,8 @@ You will need to modify it based on your Capistrano configuration.
 Watch the commands that are executed when you run ````cap production deploy```` to see what commands are executed.
 Also make sure you run it as ````:deploy_user```` user as specified in your *deploy.rb*.
 
+    #!/bin/bash
+
     echo '***** pulling releases *****' &&
     releases -b my-releases-bucket -d /apps/my-app -m pull &&
     
