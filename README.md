@@ -1,6 +1,6 @@
 # Capistrano::Releases
 
-This gem simplifies working with Auto scaling for AWS EC2](https://aws.amazon.com/autoscaling/) and [Capistrano](http://capistranorb.com). It does this by storing your releases in AWS S3.
+This gem simplifies working with [Auto scaling for AWS EC2](https://aws.amazon.com/autoscaling/) and [Capistrano](http://capistranorb.com). It does this by storing your releases in AWS S3.
 
 ## Requirements
 
