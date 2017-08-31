@@ -8,7 +8,7 @@ This gem simplifies working with [Auto scaling for AWS EC2](https://aws.amazon.c
 * aws-sdk gem.
 * An AWS S3 bucket to store releases.
 * Read and write API permissions to the S3 bucket.
-* Capistrano installed and configured for your project.
+* Capistrano installed and configured properly with deploys already working.
 
 ## Installation
 
