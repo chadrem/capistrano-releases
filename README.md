@@ -8,6 +8,7 @@ This gem simplifies working with [Auto scaling for AWS EC2](https://aws.amazon.c
 * aws-sdk gem.
 * An AWS S3 bucket to store releases.
 * Read and write API permissions to the S3 bucket.
+* Capistrano installed and configured for your project.
 
 ## Installation
 
@@ -55,11 +56,11 @@ For 'pull' you need to configure your server to run a command **before** your Ra
 
     $ releases -b your-bucket-name-goes-here -d /your/deploy/to/name/goes/here -m pull
     
-Note that in both cases, the *releases* script needs to have working API access to the S3 bucket.
+You must now write a boot script for your Rails processes.
+These tend to be very specific to your environment and the set of Capistrano gems you are using.
+An example is provided below.
 
 ## Flags
-
-
 
 #### --mode
 
@@ -86,6 +87,31 @@ This flag must be set to match the Capistrano configuration variable of the same
 You can normally find it in your *deploy.rb*. An example from a stock config:
 
     set :deploy_to, "/var/www/my_app_name"
+
+## Rails boot script
+
+This is just a sample.
+You will need to modify it based on your Capistrano configuration.
+Watch the commands that are executed when you run ````cap production deploy```` to see what commands are executed.
+Also make sure you run it as ````:deploy_user```` user as specified in your *deploy.rb*.
+
+    echo '***** pulling releases *****' &&
+    releases -b my-releases-bucket -d /apps/my-app -m pull &&
+    
+    echo '***** Deleting old PID files *****' &&
+    rm -rf /apps/my-app/shared/tmp/pids/* &&
+    
+    echo '***** Installing gems *****' &&
+    bundle install --path /apps/my-app/shared/bundle --without development test --deployment --quiet &&
+
+    echo '***** Precompiling assets *****' &&
+    bundle exec rake assets:precompile &&
+    
+    echo '***** Starting web server *****' &&
+    echo 'put your web server command here' &&
+    
+    echo '***** Starting job server *****' &&
+    echo 'put your job server command here' &&
 
 ## Development
 
