@@ -1,7 +1,6 @@
 # Capistrano::Releases
-Auto scaling AWS EC2 environments need a way to share the Capistrano 'releases' directory and 'current' symlink.
-This gem provides that capability using AWS S3 to store releases.
-Each release is stored as a zip file.
+
+This gem simplifies working with Auto scaling for AWS EC2](https://aws.amazon.com/autoscaling/) and [Capistrano](http://capistranorb.com). It does this by storing your releases in AWS S3.
 
 ## Requirements
 
