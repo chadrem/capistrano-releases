@@ -1,6 +1,6 @@
 # Capistrano::Releases
 
-This gem simplifies working with [Auto scaling for AWS EC2](https://aws.amazon.com/autoscaling/) and [Capistrano](http://capistranorb.com). It does this by storing your releases in AWS S3.
+This gem simplifies working with [Auto scaling for AWS EC2](https://aws.amazon.com/autoscaling/) and [Capistrano](http://capistranorb.com). It does this by storing your releases in AWS S3 and synchronizing them when needed (after deploy, instance reboot, and after a new instance is created).
 
 ## Requirements
 
@@ -27,9 +27,41 @@ Or install it yourself as:
 
 ## Usage
 
+It is assumed that you have already setup a S3 bucket and granted API read/write permissions to it.
+You should test to make sure your instances are able to read/write to the bucket before continuing.
+
+You normally interact with the gem through the command line (see below for flag details):
+
     $ releases --help
 
-#### Flag: --mode
+The general idea is that after each deploy, you 'push' the new release to S3.
+Then, after each boot (or reboot) your instances 'pull' the latest releases from S3.
+
+For 'push' you need to edit your *deploy.rb* and add something like this:
+
+    namespace :releases do
+        bucket = 'your-bucket-name-goes-here'
+        
+        desc 'Push releases'
+        task :push do
+            on roles(:all, primary: true) do
+                execute "releases -b #{bucket} -d #{fetch(:deploy_to)} -m push"
+            end
+        end
+    end
+    after 'deploy:finished', 'releases:push'
+
+For 'pull' you need to configure your server to run a command **before** your Rails processes (Puma, Thin, Sidekiq, etc) start:
+
+    $ releases -b your-bucket-name-goes-here -d /your/deploy/to/name/goes/here -m pull
+    
+Note that in both cases, the *releases* script needs to have working API access to the S3 bucket.
+
+## Flags
+
+
+
+#### --mode
 
 You must pick a mode to run in: 'push' or 'pull'.
 
@@ -41,17 +73,17 @@ The pull mode compares the releases stored in S3 to your local releases.
 Any missing releases will get downloaded and uncompressed.
 Finally, the 'current' symlink will get updated to match the remote version.
 
-#### Flag: --bucket
+#### --bucket
 
 Your instances must have read/write access to the specified S3 bucket.
 Make sure your instances have the correct permissions with an IAM role
 or make sure you specify the ````AWS_ACCESS_KEY_ID```` and ````AWS_SECRET_ACCESS_KEY```` environment variables.
 Under the hood this gem uses the [aws-sdk](https://github.com/aws/aws-sdk-ruby) gem for all API calls.
 
-#### Flag: --deploy-to
+#### --deploy-to
 
 This flag must be set to match the Capistrano configuration variable of the same name.
-You can normally find it in your ````deploy.rb````. An example from a stock config:
+You can normally find it in your *deploy.rb*. An example from a stock config:
 
     set :deploy_to, "/var/www/my_app_name"
 
