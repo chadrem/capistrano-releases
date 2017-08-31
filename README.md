@@ -44,8 +44,8 @@ Finally, the 'current' symlink will get updated to match the remote version.
 
 #### Flag: --bucket
 
-Your instance(s) must have read/write access to the specified S3 bucket.
-Make sure your instance has the correct permissions with an IAM role
+Your instances must have read/write access to the specified S3 bucket.
+Make sure your instances have the correct permissions with an IAM role
 or make sure you specify the ````AWS_ACCESS_KEY_ID```` and ````AWS_SECRET_ACCESS_KEY```` environment variables.
 Under the hood this gem uses the [aws-sdk](https://github.com/aws/aws-sdk-ruby) gem for all API calls.
 
