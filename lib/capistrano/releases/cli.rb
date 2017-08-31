@@ -9,17 +9,17 @@ module Capistrano
           opts.banner = 'Usage: manager [options]'
 
           opts.on('-bBUCKET', '--bucket=BUCKET',
-                  'S3 bucket to pull/push releases.') do |v|
+                  'S3 bucket to pull/push releases (required).') do |v|
             options[:bucket] = v
           end
 
           opts.on('-dDEPLOY_TO', '--deploy-to=DEPLOY_TO',
-                  'App directory to deploy to.') do |v|
+                  'App directory to deploy to (required).') do |v|
             options[:deploy_to] = v
           end
 
           opts.on('-mMODE', '--mode=MODE',
-                  "Mode to run: 'push' or 'pull'") do |v|
+                  "Mode to run: 'push' or 'pull' (required).") do |v|
             options[:mode] = v
           end
         end
@@ -27,14 +27,19 @@ module Capistrano
         parser.parse!
 
         unless options[:bucket]
-          puts('-b or --bucket is a required option.') && exit(1)
+          puts("-b or --bucket is a required option.\n\n#{parser.help}")
+          exit(1)
         end
 
         unless options[:deploy_to]
-          puts('-d or --deploy-to is a required option.') && exit(1)
+          puts("-d or --deploy-to is a required option.\n\n#{parser.help}")
+          exit(1)
         end
 
-        puts('-m or --mode is a required option.') && exit(1) unless options[:mode]
+        unless options[:mode]
+          puts("-m or --mode is a required option.\n\n#{parser.help}")
+          exit(1)
+        end
 
         manager = ::Capistrano::Releases::Manager.new(options)
 
