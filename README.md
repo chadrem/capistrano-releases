@@ -113,7 +113,7 @@ Also make sure you run it as ````:deploy_user```` as specified in your *deploy.r
     echo 'put your web server command here' &&
     
     echo '***** Starting job server *****' &&
-    echo 'put your job server command here' &&
+    echo 'put your job server command here'
 
 ## Development
 
