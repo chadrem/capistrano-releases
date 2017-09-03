@@ -27,29 +27,45 @@ module Capistrano
 
       def push
         make_dirs
+
         remotes = Set.new(remote_releases)
-        to_upload = local_releases.reject { |r| remotes.include?(r) }
-        to_upload.each { |r| upload(r) }
+        puts "Remote releases: #{remotes.to_a.inspect}"
+
+        to_upload_releases = local_releases.reject { |r| remotes.include?(r) }
+        to_upload_releases.each do |r|
+          puts "Uploading release: #{r}"
+          upload_release(r)
+        end
+
+        puts "Setting remote current to: #{remote_current}"
         self.remote_current = local_current
 
-        to_upload
+        upload_bundle
+
+        to_upload_releases
       end
 
       def pull
         make_dirs
+
         locals = Set.new(local_releases)
         puts "Local releases: #{locals.to_a.inspect}"
-        to_download = remote_releases.last(params[:keep_releases])
-                                     .reject { |r| locals.include?(r) }
-        to_download.each do |r|
+
+        to_download_releases = remote_releases.last(params[:keep_releases])
+                                              .reject { |r| locals.include?(r) }
+        to_download_releases.each do |r|
           puts "Downloading release: #{r}"
-          download(r)
+          download_release(r)
         end
+
         self.local_current = remote_current
+
         puts "Setting local current to: #{local_current}"
         Dir.chdir(File.join(params[:deploy_to], 'current'))
 
-        to_download
+        download_bundle
+
+        to_download_releases
       end
 
       private
@@ -86,6 +102,10 @@ module Capistrano
         File.join(params[:deploy_to], 'releases')
       end
 
+      def local_shared_path
+        File.join(params[:deploy_to], 'shared')
+      end
+
       def local_releases
         Dir.glob("#{local_releases_path}/*")
            .sort
@@ -95,7 +115,7 @@ module Capistrano
       def remote_releases
         bucket.objects
               .map(&:key)
-              .select { |k| k.end_with?('.tar.gz') }
+              .select { |k| k =~ /\A\d+.*\.tar\.gz\z/ }
               .map { |k| k.gsub(/\.tar\.gz\z/, '') }
               .sort
       end
@@ -124,8 +144,8 @@ module Capistrano
         nil
       end
 
-      def upload(release)
-        tmp = Tempfile.new(["capistrano-releases_upload-#{release}", '.tar.gz'],
+      def upload_release(release)
+        tmp = Tempfile.new(["capistrano-releases_upload-release-#{release}", '.tar.gz'],
                            Dir.tmpdir, encoding: 'BINARY')
 
         begin
@@ -137,13 +157,47 @@ module Capistrano
         end
       end
 
-      def download(release)
-        tmp = Tempfile.new(["capistrano-releases_download-#{release}", '.tar.gz'],
+      def download_release(release)
+        tmp = Tempfile.new(["capistrano-releases_download-release-#{release}", '.tar.gz'],
                            Dir.tmpdir, encoding: 'BINARY')
 
         begin
           bucket.object("#{release}.tar.gz").get(response_target: tmp)
           system!(['tar', 'Cxfz', local_releases_path, tmp.path])
+        ensure
+          tmp.close
+          tmp.unlink
+        end
+      end
+
+      def upload_bundle
+        return unless Dir.exist?(File.join(local_shared_path, 'bundle'))
+
+        puts 'Uploading bundle'
+
+        tmp = Tempfile.new(['capistrano-releases_upload-bundle', '.tar.gz'],
+                           Dir.tmpdir, encoding: 'BINARY')
+
+        begin
+          system!(['tar', 'Ccfz', local_shared_path, tmp.path, 'bundle'])
+          bucket.object('bundle.tar.gz').put(body: tmp)
+        ensure
+          tmp.close
+          tmp.unlink
+        end
+      end
+
+      def download_bundle
+        return if Dir.exist?(File.join(local_shared_path, 'bundle'))
+
+        puts 'Downloading bundle'
+
+        tmp = Tempfile.new(['capistrano-releases_download-bundle', '.tar.gz'],
+                           Dir.tmpdir, encoding: 'BINARY')
+
+        begin
+          bucket.object('bundle.tar.gz').get(response_target: tmp)
+          system!(['tar', 'Cxfz', local_shared_path, tmp.path])
         ensure
           tmp.close
           tmp.unlink
